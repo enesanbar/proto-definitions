@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package urlshortener.v1;
+
+option go_package = "github.com/enesanbar/proto-sdk-go/urlshortener";
+option java_package = "com.enesanbar.proto.urlshortener";
+option java_outer_classname = "UrlShortenerProto";
+
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// Request messages
+message CreateMappingRequest {
+  string code = 1;
+  google.protobuf.Timestamp expires_at = 2;
+  string url = 3;
+}
+
+message UpdateMappingRequest {
+  string code = 1;
+  google.protobuf.Timestamp expires_at = 2;
+  string url = 3;
+}
+
+message GetMappingsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  string sort_order = 3;
+  string sort_by = 4;
+  string code_query = 5;
+  string url_query = 6;
+}
+
+message GetMappingRequest {
+  string code = 1;
+}
+
+message DeleteMappingRequest {
+  string code = 1;
+}
+
+message PatchMappingRequest {
+  string code = 1;
+  UpdateMappingRequest mapping = 2;
+}
+
+// Response messages
+message UrlMapping {
+  string id = 1;
+  string code = 2;
+  string url = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  google.protobuf.Timestamp expires_at = 6;
+}
+
+message ApiResponse {
+  int32 status = 1;
+  string error = 2;
+}
+
+message SingleMappingResponse {
+  ApiResponse response = 1;
+  UrlMapping data = 2;
+}
+
+message MappingsListResponse {
+  ApiResponse response = 1;
+  PagedResponse data = 2;
+}
+
+message PagedResponse {
+  int32 current_page = 1;
+  int32 next_page = 2;
+  int32 prev_page = 3;
+  int32 num_of_pages = 4;
+  int32 page_size = 5;
+  int32 total_items = 6;
+  repeated UrlMapping items = 7;
+}
+
+// The gRPC Service
+service UrlShortenerService {
+  rpc CreateMapping(CreateMappingRequest) returns (SingleMappingResponse);
+  rpc GetMapping(GetMappingRequest) returns (SingleMappingResponse);
+  rpc GetMappings(GetMappingsRequest) returns (MappingsListResponse);
+  rpc UpdateMapping(PatchMappingRequest) returns (SingleMappingResponse);
+  rpc DeleteMapping(DeleteMappingRequest) returns (google.protobuf.Empty);
+}
